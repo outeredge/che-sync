@@ -57,7 +57,7 @@ CHE_KEY=$(curl -s "${CHE_HOSTNAME}/api/ssh/machine?token=${AUTH_TOKEN}" | jq -re
     exit 1; 
 }
 
-CHE_PROJECT="${CHE_SSH:0:6}$SSH_USER@${CHE_SSH:6}/projects/$CHE_PROJECT"
+CHE_PROJECT="${CHE_SSH:0:6}$SSH_USER@${CHE_SSH:6}//projects/$CHE_PROJECT"
 
 # Store private key
 echo "${CHE_KEY}" > $HOME/.ssh/id_rsa

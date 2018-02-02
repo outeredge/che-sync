@@ -1,6 +1,6 @@
 #!/bin/bash
 
-CHE_DIRECTORY=""
+CHE_PROJECT=""
 CHE_WORKSPACE=""
 CHE_HOSTNAME=""
 CHE_USERNAME=""
@@ -26,7 +26,7 @@ if [[ -z $CHE_HOSTNAME || -z $CHE_USERNAME || -z $CHE_PASSWORD ]]; then
 fi
 
 CHE_WORKSPACE=${1?No workspace specified}
-CHE_DIRECTORY=${2?No remote path specified}
+CHE_PROJECT=${2?No project specified}
 
 UNISON_PATH="/mount"
 UNISON_SYNC_PERIOD=5
@@ -57,14 +57,14 @@ CHE_KEY=$(curl -s "${CHE_HOSTNAME}/api/ssh/machine?token=${AUTH_TOKEN}" | jq -re
     exit 1; 
 }
 
-CHE_DIRECTORY="${CHE_SSH:0:6}$SSH_USER@${CHE_SSH:6}/$CHE_DIRECTORY"
+CHE_PROJECT="${CHE_SSH:0:6}$SSH_USER@${CHE_SSH:6}/projects/$CHE_PROJECT"
 
 # Store private key
 echo "${CHE_KEY}" > $HOME/.ssh/id_rsa
 chmod 600 $HOME/.ssh/id_rsa
 
 # Only sync the .unison folder
-UNISON_COMMAND="unison ${UNISON_PATH} ${CHE_DIRECTORY} -path .unison ${UNISON_ARGS}"
+UNISON_COMMAND="unison ${UNISON_PATH} ${CHE_PROJECT} -path .unison ${UNISON_ARGS}"
 eval "${UNISON_COMMAND}"
 
 if [ -f $UNISON_PATH/.unison/default.prf ]; then
@@ -73,7 +73,7 @@ if [ -f $UNISON_PATH/.unison/default.prf ]; then
 fi
 
 # Run an initial sync
-UNISON_COMMAND="unison ${UNISON_PATH} ${CHE_DIRECTORY} ${UNISON_ARGS}"
+UNISON_COMMAND="unison ${UNISON_PATH} ${CHE_PROJECT} ${UNISON_ARGS}"
 eval "${UNISON_COMMAND}"
 
 status=$?
@@ -84,5 +84,5 @@ fi
 
 # Run the background sync
 echo "INFO: Background syncing every ${UNISON_SYNC_PERIOD} seconds."
-UNISON_COMMAND="unison ${UNISON_PATH} ${CHE_DIRECTORY} ${UNISON_ARGS} -retry 10 -copyonconflict -repeat=${UNISON_SYNC_PERIOD}"
+UNISON_COMMAND="unison ${UNISON_PATH} ${CHE_PROJECT} ${UNISON_ARGS} -retry 10 -copyonconflict -repeat=${UNISON_SYNC_PERIOD}"
 eval "${UNISON_COMMAND}"

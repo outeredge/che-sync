@@ -6,7 +6,7 @@ A sync tool to work on remote Eclipse Che workspaces
 
 Run the command below, replacing:
 
- `<path>` with the local directory to sync  
+ `<path>` with the local directory to sync (i.e. /home/user/myproject)  
  `<namespace/workspace>` with your namespace/workspace name (i.e. mycompany/myworkspace)  
  `<project>` with your remote project name  
  `<args>` as below  

@@ -12,7 +12,7 @@ Run the command below, replacing:
  `<args>` as below  
 
 ```sh
-$ docker run -it --pull --rm -v <path>:/mount:cached outeredge/che-sync <args> <namespace/workspace> <project>
+$ docker run -it --rm -v <path>:/mount:cached outeredge/che-sync <args> <namespace/workspace> <project>
 ```
 ### Args
 ```

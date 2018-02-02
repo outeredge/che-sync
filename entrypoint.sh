@@ -12,7 +12,7 @@ while getopts h:u:p:s: OPT
 do
     case "${OPT}"
     in
-    h) CHE_HOSTNAME=${OPTARG};;
+    h) CHE_HOSTNAME=http://${OPTARG};;
     u) CHE_USERNAME=${OPTARG};;
     p) CHE_PASSWORD=${OPTARG};;
     s) SSH_USER=${OPTARG};;

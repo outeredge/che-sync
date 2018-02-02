@@ -18,9 +18,9 @@ $ docker run -it --rm -v <path>:/mount:cached outeredge/che-sync <args> <namespa
 ```
 Required
 
+ -h     your che hostname (i.e. che.mycompany.com)
  -u     your che username (i.e. user)
  -p     your che password (i.e. pass)
- -h     your che hostname (i.e. che.mycompany.com)
  
 Optional
  

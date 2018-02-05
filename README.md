@@ -6,13 +6,13 @@ A sync tool to work on remote Eclipse Che workspaces
 
 Run the command below, replacing:
 
- `<path>` with the local directory to sync (i.e. /home/user/myproject)  
- `<namespace/workspace>` with your namespace/workspace name (i.e. mycompany/myworkspace)  
- `<project>` with your remote project name  
- `<args>` as below  
+| `<path>` | with the local directory to sync (i.e. /home/user/myproject) |
+| `<workspace>` | with your namespace/workspace name (i.e. mycompany/myworkspace) |
+| `<project>` | with your remote project name |
+| `<args>` | as below |
 
 ```sh
-$ docker run -it --rm -v <path>:/mount:cached outeredge/che-sync <args> <namespace/workspace> <project>
+$ docker run -it --rm -v <path>:/mount:cached outeredge/che-sync <args> <workspace> <project>
 ```
 ### Args
 ```
@@ -25,4 +25,6 @@ Required
 Optional
  
  -s     ssh username for remote workspace
+ -t     Two-factor TOTP (2fa) code
+ -r     Sync repeat delay, default 5 (seconds)
  ```

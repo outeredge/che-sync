@@ -5,7 +5,9 @@ CHE_WORKSPACE=""
 CHE_HOSTNAME=""
 CHE_USERNAME=""
 CHE_PASSWORD=""
+CHE_TOTP=""
 SSH_USER="user"
+UNISON_SYNC_PERIOD=5
 
 OPTIND=1
 while getopts h:u:p:s: OPT
@@ -16,6 +18,8 @@ do
     u) CHE_USERNAME=${OPTARG};;
     p) CHE_PASSWORD=${OPTARG};;
     s) SSH_USER=${OPTARG};;
+    t) CHE_TOTP=${OPTARG};;
+    r) UNISON_SYNC_PERIOD=${OPTARG};;
     esac
 done
 shift $((OPTIND - 1))
@@ -29,14 +33,14 @@ CHE_WORKSPACE=${1?No workspace specified}
 CHE_PROJECT=${2?No project specified}
 
 UNISON_PATH="/mount"
-UNISON_SYNC_PERIOD=5
 UNISON_ARGS="-batch -auto -prefer=newer -sshargs '-C -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no'"
 
 AUTH_TOKEN_RESPONSE=$(curl --fail -s -X POST "${CHE_HOSTNAME}:5050/auth/realms/che/protocol/openid-connect/token" \
  -H "Content-Type: application/x-www-form-urlencoded" \
  -d "username=${CHE_USERNAME}" \
  -d "password=${CHE_PASSWORD}" \
- -d 'grant_type=password' \
+ -d "totp=${CHE_TOTP}" \
+ -d 'grant_type=password' \ 
  -d 'client_id=che-public') || {
     echo "ERROR: Unable to connect to Keycloak server!";
     exit 1;

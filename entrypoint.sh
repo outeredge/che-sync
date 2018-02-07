@@ -10,7 +10,7 @@ SSH_USER="user"
 UNISON_SYNC_PERIOD=5
 
 OPTIND=1
-while getopts h:u:p:s: OPT
+while getopts h:u:p:s:t:r: OPT
 do
     case "${OPT}"
     in

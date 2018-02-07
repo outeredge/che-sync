@@ -1,4 +1,4 @@
-# che-sync
+# che-sync [![Docker Build Status](https://img.shields.io/docker/build/outeredge/che-sync.svg?style=flat-square)](https://hub.docker.com/r/outeredge/che-sync)
 A sync tool to work on remote Eclipse Che workspaces
 
 ## Running

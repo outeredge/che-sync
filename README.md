@@ -9,7 +9,7 @@ $ docker run -it --rm -v <path>:/mount:cached outeredge/che-sync <args> <workspa
 
 | Argument      | Description                                                  |
 | ------------- | ------------------------------------------------------------ |
-| `<path>`      | with the local directory to sync (i.e. /home/user/myproject) |
-| `<workspace>` | with your namespace/workspace name (i.e. mycompany/myworkspace) |
-| `<project>`   | with your remote project name |
-| `<args>`      | -h  your che hostname (i.e. che.mycompany.com)<br/>-u  your che username<br/>-p  your che password<br/>-s ssh username for remote workspace (optional)<br/>-t  Two-factor TOTP (2fa) code (optional)<br/>-r  Sync repeat delay in seconds, default 5 (optional) |
+| `<path>`      | the local directory to sync (i.e. /home/user/myproject) |
+| `<workspace>` | your namespace/workspace name (i.e. mycompany/myworkspace) |
+| `<project>`   | your remote project name |
+| `<args>`      | **-h**  your che hostname (i.e. che.mycompany.com)<br/>**-u**  your che username<br/>**-p**  your che password<br/>**-s** ssh username for remote workspace (optional)<br/>**-t**  Two-factor TOTP (2fa) code (optional)<br/>**-r**  Sync repeat delay in seconds, default 5 (optional) |

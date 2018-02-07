@@ -40,7 +40,7 @@ AUTH_TOKEN_RESPONSE=$(curl --fail -s -X POST "${CHE_HOSTNAME}:5050/auth/realms/c
  -d "username=${CHE_USERNAME}" \
  -d "password=${CHE_PASSWORD}" \
  -d "totp=${CHE_TOTP}" \
- -d 'grant_type=password' \ 
+ -d 'grant_type=password' \
  -d 'client_id=che-public') || {
     echo "ERROR: Unable to connect to Keycloak server!";
     exit 1;

@@ -4,7 +4,7 @@ A sync tool to work on remote Eclipse Che workspaces
 ## Running
 
 ```sh
-$ docker run -it --rm -v <path>:/mount:cached outeredge/che-sync <args> <workspace> <project>
+$ docker run -it --rm -v $(pwd):/mount:cached outeredge/che-sync <args> <workspace> <project>
 ```
 
 | Argument      | Description                                                  |

@@ -3,7 +3,7 @@ A tool by [outer/edge](https://github.com/outeredge) to work on remote Eclipse C
 
 ## Running
 
-Run the command below _from the folder_ you wish to sync your project into:
+Run the command below _from the folder_ you wish to sync your project into. If all goes well, you should land in the remote workspaces bash prompt.
 
 ```sh
 $ docker run -it --rm -v $PWD:/mount:cached outeredge/che-sync <options> <workspace> <project>
@@ -17,7 +17,7 @@ $ docker run -it --rm -v $PWD:/mount:cached outeredge/che-sync <options> <worksp
 
 ### Passing arguments as environment variables
 
-As well as CLI aguments, you can also pass some (or all) of the arguments as environment variables to docker (i.e. with `-e` or with a `docker-compose.yml`):
+As well as CLI aguments, you can also pass some (or all) of the arguments as environment variables to docker (i.e. with `-e` or with a `docker-compose.yml`).
 
 | Variable | Default     |
 | -------- | ----------- |
@@ -43,7 +43,7 @@ $ docker pull outeredge/che-sync
 
 ## Troubleshooting
 
-You can watch the Unison sync logs by running the below command in a new terminal after starting che-sync:
+You can watch the Unison sync logs by running the below command in a new terminal after starting che-sync.
 
 ```sh
 $ docker exec $(docker ps -lq) tail -f unison.log

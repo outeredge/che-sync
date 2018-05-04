@@ -103,4 +103,4 @@ eval "unison ${UNISON_PROFILE} /mount ${unison_remote} ${unison_args} -repeat=${
 echo "Connecting to Che workspace ${fgBold}${fgGreen}$CHE_WORKSPACE${fgNormal} with SSH..."
 ssh_connect=${che_ssh:6}
 ssh_connect=${ssh_connect/:/ -p}
-ssh $ssh_args -R 9000:localhost:9000 $SSH_USER@$ssh_connect -t "cd /projects/${CHE_PROJECT}; exec \$SHELL --login"
+ssh -R '*:9000:localhost:9000' $ssh_args $SSH_USER@$ssh_connect -t "cd /projects/${CHE_PROJECT}; exec \$SHELL --login"

@@ -3,7 +3,7 @@ A tool by [outer/edge](https://github.com/outeredge) to work on remote Eclipse C
 
 ## Running
 
-Run the command below _from the folder_ you wish to sync your project into. If all goes well, you should land in the remote workspaces bash prompt.
+Run the command below _from the folder_ you wish to sync your project into. If all goes well, you should land in the remote workspaces bash prompt and your project files should be syncing in the background.
 
 ```sh
 $ docker run -it --rm -v $PWD:/mount:cached outeredge/che-sync <options> <workspace> <project>

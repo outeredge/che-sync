@@ -1,17 +1,27 @@
 FROM alpine:3.7
 
-ENV UNISON_VERSION 2.48.4
-
-VOLUME /mount
+ENV UNISON_VERSION=2.48.4 \
+    CHE_HOST= \
+    CHE_USER= \
+    CHE_PASS= \
+    CHE_TOTP= \
+    CHE_WORKSPACE= \
+    CHE_PROJECT= \
+    SSH_USER=user \
+    UNISON=/mount/.unison \
+    UNISONLOCALHOSTNAME=che-local \
+    UNISON_PROFILE= \
+    UNISON_REPEAT=watch
 
 ENTRYPOINT ["/entrypoint.sh"]
 
-RUN apk add --no-cache bash curl jq openssh unison=~${UNISON_VERSION} && \
+RUN apk add --no-cache bash curl ncurses jq openssh unison=~${UNISON_VERSION} && \
     addgroup -g 1000 -S user && \
-    adduser -u 1000 -DS -h /home/user -s /sbin/nologin -g user -G user user
+    adduser -u 1000 -DS -h /home/user -s /sbin/nologin -g user -G user user && \
+    mkdir /mount /home/user/.ssh && chown user:user /mount /home/user/.ssh
 
-COPY entrypoint.sh /
+WORKDIR /home/user
 
 USER user
 
-RUN mkdir -p /home/user/.unison /home/user/.ssh
+COPY entrypoint.sh /

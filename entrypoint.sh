@@ -64,7 +64,7 @@ auth_token=$(echo $auth_token_response | jq -re '.access_token | select(.!=null)
 
 # Get ssh url from che api
 che_ssh=$(curl -s "${CHE_HOST}/api/workspace/${CHE_WORKSPACE}?token=${auth_token}" | jq -re 'first(..|.["dev-machine"]?.servers?.ssh?.url? | select(.!=null))' 2>/dev/null) || {
-    echo "${fgRed}ERROR: Unable to obtain SSH connection details for ${CHE_WORKSPACE}, is the workspace running and the SSH agent enabled?${fgNormal}";
+    echo "${fgRed}ERROR: Unable to connect to the Che API for ${CHE_WORKSPACE}, is the workspace running and the SSH agent enabled?${fgNormal}";
     exit 1;
 }
 

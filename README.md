@@ -21,15 +21,15 @@ As well as CLI aguments, you can also pass some (or all) of the arguments as env
 
 | Variable | Default     |
 | -------- | ----------- |
-| CHE_HOST | _none_      |
-| CHE_USER | _none_      |
-| CHE_PASS | _none_      |
-| CHE_TOTP | _none_      |
-| CHE_WORKSPACE | _none_ |
-| CHE_PROJECT | _none_   |
-| SSH_USER | user        |
-| UNISON_PROFILE | default |
-| UNISON_REPEAT | watch  |
+| CHE_HOST | -      |
+| CHE_USER | -      |
+| CHE_PASS | -      |
+| CHE_TOTP | -      |
+| CHE_WORKSPACE | - |
+| CHE_PROJECT | -   |
+| SSH_USER | **user**        |
+| UNISON_PROFILE | **default** |
+| UNISON_REPEAT | **watch**  |
 
 ### Additional unison profiles
 

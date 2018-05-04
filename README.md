@@ -27,9 +27,9 @@ As well as CLI aguments, you can also pass some (or all) of the arguments as env
 | CHE_TOTP | -      |
 | CHE_WORKSPACE | - |
 | CHE_PROJECT | -   |
-| SSH_USER | **user**        |
-| UNISON_PROFILE | **default** |
-| UNISON_REPEAT | **watch**  |
+| SSH_USER | user        |
+| UNISON_PROFILE | default |
+| UNISON_REPEAT | watch  |
 
 ### Additional unison profiles
 

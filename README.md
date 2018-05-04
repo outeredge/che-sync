@@ -25,6 +25,7 @@ As well as CLI aguments, you can also pass some (or all) of the arguments as env
 | CHE_USER | -      |
 | CHE_PASS | -      |
 | CHE_TOTP | -      |
+| CHE_NAMESPACE | - |
 | CHE_WORKSPACE | - |
 | CHE_PROJECT | -   |
 | SSH_USER | user        |

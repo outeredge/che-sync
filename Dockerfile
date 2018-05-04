@@ -5,6 +5,7 @@ ENV UNISON_VERSION=2.48.4 \
     CHE_USER= \
     CHE_PASS= \
     CHE_TOTP= \
+    CHE_NAMESPACE= \
     CHE_WORKSPACE= \
     CHE_PROJECT= \
     SSH_USER=user \

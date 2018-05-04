@@ -10,7 +10,7 @@ if [ -t 0 ]; then
     fgNormal=$(tput sgr0)
     fgBold=$(tput bold)
 else
-    echo "ERROR: No TTY found, docker must be run with -t"
+    echo "ERROR: No TTY found, docker must be run with -it"
     exit 1
 fi
 
@@ -24,12 +24,13 @@ echo -e "                             __/ |            ";
 echo -e "                            |___/${fgNormal}\n";
 
 OPTIND=1
-while getopts h:u:p:s:t:r: OPT
+while getopts h:u:n:p:s:t:r: OPT
 do
     case "${OPT}"
     in
     h) CHE_HOST=http://${OPTARG};;
     u) CHE_USER=${OPTARG};;
+    n) CHE_NAMESPACE=${OPTARG};;
     p) CHE_PASS=${OPTARG};;
     s) SSH_USER=${OPTARG};;
     t) CHE_TOTP=${OPTARG};;
@@ -39,13 +40,14 @@ done
 shift $((OPTIND - 1))
 
 CHE_WORKSPACE=${1:-$CHE_WORKSPACE}
+CHE_WORKSPACE=${CHE_NAMESPACE:+$CHE_NAMESPACE/}${CHE_WORKSPACE}
 CHE_PROJECT=${2:-$CHE_PROJECT}
 
 if [[ -z $CHE_HOST || -z $CHE_USER || -z $CHE_PASS || -z $CHE_WORKSPACE || -z $CHE_PROJECT ]]; then
   echo "${fgRed}ERROR: You must specify a host (-h), username (-u), password (-p), workspace and project to continue${fgNormal}"
   exit 1
 fi
-   
+
 # Authenticate with keycloak and grab tokeb
 auth_token_response=$(curl --fail -s -X POST "${CHE_HOST}:5050/auth/realms/che/protocol/openid-connect/token" \
  -H "Content-Type: application/x-www-form-urlencoded" \
@@ -101,4 +103,4 @@ eval "unison ${UNISON_PROFILE} /mount ${unison_remote} ${unison_args} -repeat=${
 echo "Connecting to Che workspace ${fgBold}${fgGreen}$CHE_WORKSPACE${fgNormal} with SSH..."
 ssh_connect=${che_ssh:6}
 ssh_connect=${ssh_connect/:/ -p}
-ssh $ssh_args $SSH_USER@$ssh_connect -t "cd /projects/${CHE_PROJECT}; exec \$SHELL --login"
+ssh $ssh_args -R 9000:localhost:9000 $SSH_USER@$ssh_connect -t "cd /projects/${CHE_PROJECT}; exec \$SHELL --login"

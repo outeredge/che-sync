@@ -85,14 +85,14 @@ trap 'echo "Shutting down sync process..."; kill $(jobs -p) 2> /dev/null; exit' 
 
 # Sync any remote unison profiles first
 unison_remote="${che_ssh:0:6}$SSH_USER@${che_ssh:6}//projects/$CHE_PROJECT"
-echo "Syncing profiles..."
-eval "unison /mount ${unison_remote} ${unison_args} -force ${unison_remote} -path .unison -ignore='Name ?*' -ignorenot='Name *.prf'"
-if [ ! -z "$UNISON_PROFILE" ]; then
-    echo "Using sync profile ${fgGreen}${fgBold}$UNISON_PROFILE${fgNormal}"
-fi
+echo "Connecting to remote server..."
+eval "unison /mount ${unison_remote} ${unison_args} -testserver"
 
 # Run unison sync in the background
 echo "Starting background sync process..."
+if [ ! -z "$UNISON_PROFILE" ]; then
+    echo "Using sync profile ${fgGreen}${fgBold}$UNISON_PROFILE${fgNormal}"
+fi
 eval "unison ${UNISON_PROFILE} /mount ${unison_remote} ${unison_args} -repeat=${UNISON_REPEAT} \
  -ignore='Name .*'  \
  -ignore='Name *.orig'  \
@@ -103,4 +103,4 @@ eval "unison ${UNISON_PROFILE} /mount ${unison_remote} ${unison_args} -repeat=${
 echo "Connecting to Che workspace ${fgBold}${fgGreen}$CHE_WORKSPACE${fgNormal} with SSH..."
 ssh_connect=${che_ssh:6}
 ssh_connect=${ssh_connect/:/ -p}
-ssh -R '*:9000:localhost:9000' $ssh_args $SSH_USER@$ssh_connect -t "cd /projects/${CHE_PROJECT}; exec \$SHELL --login"
+ssh -q -R '*:9000:localhost:9000' $ssh_args $SSH_USER@$ssh_connect -t "cd /projects/${CHE_PROJECT}; exec \$SHELL --login"

@@ -39,12 +39,17 @@ do
 done
 shift $((OPTIND - 1))
 
-CHE_WORKSPACE=${1:-$CHE_WORKSPACE}
+if [[ "$1" == "ssh" && -z "$2" ]]; then
+    ssh_only=true
+else
+    CHE_WORKSPACE=${1:-$CHE_WORKSPACE}
+fi
+
 CHE_WORKSPACE=${CHE_NAMESPACE:+$CHE_NAMESPACE/}${CHE_WORKSPACE}
 CHE_PROJECT=${2:-$CHE_PROJECT}
 
-if [[ -z $CHE_HOST || -z $CHE_USER || -z $CHE_PASS || -z $CHE_WORKSPACE || -z $CHE_PROJECT ]]; then
-  echo "${fgRed}ERROR: You must specify a host (-h), username (-u), password (-p), workspace and project to continue${fgNormal}"
+if [[ -z $CHE_HOST || -z $CHE_USER || -z $CHE_PASS || -z $CHE_WORKSPACE ]]; then
+  echo "${fgRed}ERROR: You must specify at least a host, username, password and workspace to continue${fgNormal}"
   exit 1
 fi
 
@@ -80,24 +85,26 @@ che_key=$(curl -s "${CHE_HOST}/api/ssh/machine?token=${auth_token}" | jq -re 'fi
 echo "${che_key}" > $HOME/.ssh/id_rsa
 chmod 600 $HOME/.ssh/id_rsa
 
-# Shut down background jobs on exit
-trap 'echo "Shutting down sync process..."; kill $(jobs -p) 2> /dev/null; exit' EXIT
+if [ "$ssh_only" != true ] ; then
+    # Shut down background jobs on exit
+    trap 'echo "Shutting down sync process..."; kill $(jobs -p) 2> /dev/null; exit' EXIT
 
-# Sync any remote unison profiles first
-unison_remote="${che_ssh:0:6}$SSH_USER@${che_ssh:6}//projects/$CHE_PROJECT"
-echo "Connecting to remote server..."
-eval "unison /mount ${unison_remote} ${unison_args} -testserver"
+    # Test connection to remote server
+    unison_remote="${che_ssh:0:6}$SSH_USER@${che_ssh:6}//projects/$CHE_PROJECT"
+    echo "Connecting to remote server..."
+    eval "unison /mount ${unison_remote} ${unison_args} -testserver"
 
-# Run unison sync in the background
-echo "Starting background sync process..."
-if [ ! -z "$UNISON_PROFILE" ]; then
-    echo "Using sync profile ${fgGreen}${fgBold}$UNISON_PROFILE${fgNormal}"
+    # Run unison sync in the background
+    echo "Starting background sync process..."
+    if [ ! -z "$UNISON_PROFILE" ]; then
+        echo "Using sync profile ${fgGreen}${fgBold}$UNISON_PROFILE${fgNormal}"
+    fi
+    eval "unison ${UNISON_PROFILE} /mount ${unison_remote} ${unison_args} -repeat=${UNISON_REPEAT} \
+    -ignore='Name .*'  \
+    -ignore='Name *.orig'  \
+    -ignore='Name node_modules'" \
+    > unison.log &
 fi
-eval "unison ${UNISON_PROFILE} /mount ${unison_remote} ${unison_args} -repeat=${UNISON_REPEAT} \
- -ignore='Name .*'  \
- -ignore='Name *.orig'  \
- -ignore='Name node_modules'" \
-> unison.log &
 
 # Drop user into workspace via ssh
 echo "Connecting to Che workspace ${fgBold}${fgGreen}$CHE_WORKSPACE${fgNormal} with SSH..."

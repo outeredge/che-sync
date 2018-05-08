@@ -11,9 +11,9 @@ $ docker run -it --rm -v $PWD:/mount:cached outeredge/che-sync <options> <worksp
 
 | Argument      | Description                                                  |
 | ------------- | ------------------------------------------------------------ |
-| `<workspace>` | your workspace name including namespace (i.e. mycompany/myworkspace) |
-| `<project>`   | your remote project name |
 | `<options>`   | **-h**  your che hostname (i.e. che.mycompany.com)<br/>**-u**  your che username<br/>**-p**  your che password<br/>**-t**  Two-factor TOTP (2fa) code *(optional)*<br/>**-r**  Sync repeat delay in seconds, defaults to `watch` *(optional)*<br/>**-s** ssh username for remote workspace *(optional)*|
+| `<workspace>` | your workspace name including namespace (i.e. mycompany/myworkspace) |
+| `<project>`   | your remote project name *(optional)* |
 
 ### Passing arguments as environment variables
 
@@ -31,6 +31,36 @@ As well as CLI aguments, you can also pass some (or all) of the arguments as env
 | SSH_USER | user        |
 | UNISON_PROFILE | default |
 | UNISON_REPEAT | watch  |
+
+### Using Docker Compose
+
+With docker-compose, you can create a single `docker-compose.yml` on your local machine:
+
+```yml
+version: '3'
+services:
+  sync:
+    image: outeredge/che-sync
+    network_mode: host
+    volumes:
+      - .:/mount:cached
+    environment:
+      - CHE_HOST=che.mycompany.com
+      - CHE_NAMESPACE=mycompany
+      - CHE_WORKSPACE=test
+      - CHE_PROJECT=test
+      - CHE_USER=user
+      - CHE_PASS=password
+```
+
+You can then launch the sync and enter the workspace simply with:
+
+`$ docker-compose run --rm sync`
+
+If you only want to access the workspace via SSH without file sync, simply type:
+
+`$ docker-compose run --rm sync ssh`
+
 
 ### Additional unison profiles
 

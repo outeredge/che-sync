@@ -1,5 +1,7 @@
 #!/bin/bash -e
 
+export CHE_SYNC_VERSION=2.0.2
+
 ssh_args="-o LogLevel=ERROR -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no"
 unison_args="-batch -auto -silent -terse -prefer=newer -retry 10 -sshargs '-C ${ssh_args}'"
 
@@ -88,7 +90,9 @@ chmod 600 $HOME/.ssh/id_rsa
 
 if [ "$ssh_only" != true ] ; then
     # Shut down background jobs on exit
-    trap 'echo "Shutting down sync process..."; kill $(jobs -p) 2> /dev/null; exit' EXIT
+    if [ "$(jobs -p)" ]; then
+        trap 'echo "Shutting down sync process..."; kill $(jobs -p) 2> /dev/null; exit' EXIT
+    fi
 
     # Test connection to remote server
     unison_remote="${che_ssh:0:6}$SSH_USER@${che_ssh:6}//projects/$CHE_PROJECT"
@@ -101,10 +105,16 @@ if [ "$ssh_only" != true ] ; then
         echo "Using sync profile ${fgGreen}${fgBold}$UNISON_PROFILE${fgNormal}"
     fi
     eval "unison ${UNISON_PROFILE} /mount ${unison_remote} ${unison_args} -repeat=${UNISON_REPEAT} \
-    -ignore='Path .*/'  \
+    -ignore='Path .unison' \
+    -ignore='Path .che' \
+    -ignore='Path .idea' \
+    -ignore='Path .composer' \
+    -ignore='Path .npm' \
+    -ignore='Path .config' \
     -ignore='Path docker-compose.yml' \
     -ignore='Path var' \
     -ignore='Path pub/media' \
+    -ignore='Name .git' \
     -ignore='Name *.orig' \
     -ignore='Name .DS_Store' \
     -ignore='Name node_modules' \

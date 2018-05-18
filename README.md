@@ -3,6 +3,8 @@ A tool by [outer/edge](https://github.com/outeredge) to work on remote Eclipse C
 
 ## Running
 
+To run che-sync, you will need docker [installed](https://docs.docker.com/install/) on your local machine.
+
 Run the command below _from the folder_ you wish to sync your project into. If all goes well, you should land in the remote workspaces bash prompt and your project files should be syncing in the background.
 
 ```sh
@@ -34,7 +36,7 @@ As well as CLI aguments, you can also pass some (or all) of the arguments as env
 
 ### Using Docker Compose
 
-With docker-compose, you can create a single `docker-compose.yml` on your local machine:
+With [Docker Compose](https://docs.docker.com/compose/install), you can create a single `docker-compose.yml` on your local machine for each project/workspace like so:
 
 ```yml
 version: '3'
@@ -57,7 +59,7 @@ You can then launch the sync and enter the workspace simply with:
 
 `$ docker-compose run --rm sync`
 
-If you only want to access the workspace via SSH without file sync, simply type:
+If you only want to access the workspace via SSH without file sync, you can type:
 
 `$ docker-compose run --rm sync ssh`
 

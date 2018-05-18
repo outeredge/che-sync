@@ -21,7 +21,8 @@ echo -e "  / __| '_ \ / _ \_____/ __| | | | '_ \ / __| ";
 echo -e " | (__| | | |  __/_____\__ \ |_| | | | | (__  ";
 echo -e "  \___|_| |_|\___|     |___/\__, |_| |_|\___| ";
 echo -e "                             __/ |            ";
-echo -e "                            |___/${fgNormal}\n";
+echo -e "                            |___/             ";
+echo -e " VERSION: ${CHE_SYNC_VERSION}    ${fgNormal}\n";
 
 OPTIND=1
 while getopts h:u:n:p:s:t:r: OPT
@@ -100,14 +101,18 @@ if [ "$ssh_only" != true ] ; then
         echo "Using sync profile ${fgGreen}${fgBold}$UNISON_PROFILE${fgNormal}"
     fi
     eval "unison ${UNISON_PROFILE} /mount ${unison_remote} ${unison_args} -repeat=${UNISON_REPEAT} \
-    -ignore='Name .*'  \
-    -ignore='Name *.orig'  \
-    -ignore='Name node_modules'" \
-    > unison.log &
+    -ignore='Path .*/'  \
+    -ignore='Path docker-compose.yml' \
+    -ignore='Path var' \
+    -ignore='Path pub/media' \
+    -ignore='Name *.orig' \
+    -ignore='Name .DS_Store' \
+    -ignore='Name node_modules' \
+    " > unison.log &
 fi
 
 # Drop user into workspace via ssh
 echo "Connecting to Che workspace ${fgBold}${fgGreen}$CHE_WORKSPACE${fgNormal} with SSH..."
 ssh_connect=${che_ssh:6}
 ssh_connect=${ssh_connect/:/ -p}
-ssh -q -R '*:9000:localhost:9000' $ssh_args $SSH_USER@$ssh_connect -t "cd /projects/${CHE_PROJECT}; exec \$SHELL --login"
+ssh -R '*:9000:localhost:9000' $ssh_args $SSH_USER@$ssh_connect -t "cd /projects/${CHE_PROJECT}; exec \$SHELL --login"

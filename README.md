@@ -81,3 +81,7 @@ You can watch the Unison sync logs by running the below command in a new termina
 ```sh
 $ docker exec $(docker ps -lq) tail -f unison.log
 ```
+
+If you are seeing errors about exceeding filesystem watchers, try;
+
+`echo fs.inotify.max_user_watches=1048576 | sudo tee -a /etc/sysctl.conf && sudo sysctl -p`

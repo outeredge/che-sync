@@ -1,6 +1,12 @@
-#!/bin/bash -e
+#!/bin/bash
 
-export CHE_SYNC_VERSION=2.0.2
+export CHE_SYNC_VERSION=2.1.0
+
+host_domain="host.docker.internal"
+ping -q -c1 $host_domain &>/dev/null
+if [ $? -ne 0 ]; then
+    host_domain=$(/sbin/ip route|awk '/default/ { print $3 }')
+fi
 
 ssh_args="-o LogLevel=ERROR -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no"
 unison_args="-batch -auto -silent -terse -prefer=newer -retry 10 -sshargs '-C ${ssh_args}'"
@@ -89,23 +95,22 @@ echo "${che_key}" > $HOME/.ssh/id_rsa
 chmod 600 $HOME/.ssh/id_rsa
 
 if [ "$ssh_only" != true ] ; then
-    # Shut down background jobs on exit
-    if [ "$(jobs -p)" ]; then
-        trap 'echo "Shutting down sync process..."; kill $(jobs -p) 2> /dev/null; exit' EXIT
-    fi
+    export UNISONLOCALHOSTNAME=$UNISON_NAME
 
-    # Test connection to remote server
+    echo "Starting file sync process..."
+
+    # Shut down background jobs on exit
+    trap 'if [ "$(jobs -p)" ]; then echo "Shutting down sync process..." && kill $(jobs -p) 2> /dev/null; fi; exit' EXIT ERR
+
+    # Test connection to remote server and sync .unison folder
     unison_remote="${che_ssh:0:6}$SSH_USER@${che_ssh:6}//projects/$CHE_PROJECT"
-    echo "Connecting to remote server..."
-    eval "unison /mount ${unison_remote} ${unison_args} -testserver"
+    eval "unison /mount ${unison_remote} ${unison_args} -force ${unison_remote} -path .unison -ignore='Name ?*' -ignorenot='Name *.prf'"
 
     # Run unison sync in the background
-    echo "Starting background sync process..."
     if [ ! -z "$UNISON_PROFILE" ]; then
         echo "Using sync profile ${fgGreen}${fgBold}$UNISON_PROFILE${fgNormal}"
     fi
     eval "unison ${UNISON_PROFILE} /mount ${unison_remote} ${unison_args} -repeat=${UNISON_REPEAT} \
-    -ignore='Path .unison' \
     -ignore='Path .che' \
     -ignore='Path .idea' \
     -ignore='Path .composer' \
@@ -126,4 +131,4 @@ fi
 echo "Connecting to Che workspace ${fgBold}${fgGreen}$CHE_WORKSPACE${fgNormal} with SSH..."
 ssh_connect=${che_ssh:6}
 ssh_connect=${ssh_connect/:/ -p}
-ssh -R '*:9000:localhost:9000' $ssh_args $SSH_USER@$ssh_connect -t "cd /projects/${CHE_PROJECT}; exec \$SHELL --login"
+ssh -R "*:$FORWARD_PORT:$host_domain:$FORWARD_PORT" $ssh_ports $ssh_args $SSH_USER@$ssh_connect -t "cd /projects/${CHE_PROJECT}; exec \$SHELL --login"

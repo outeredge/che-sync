@@ -1,5 +1,6 @@
 # che-sync [![Docker Build Status](https://img.shields.io/docker/build/outeredge/che-sync.svg?style=flat-square)](https://hub.docker.com/r/outeredge/che-sync)
-A tool by [outer/edge](https://github.com/outeredge) to work on remote Eclipse Che workspaces
+
+A tool by [outer/edge](https://github.com/outeredge) to work on remote Eclipse Che workspaces in your local IDE. Support for remote port forwarding (to enable, for example, XDebug) on Linux, MacOS & Windows built-in.
 
 ## Running
 
@@ -21,18 +22,20 @@ $ docker run -it --rm -v $PWD:/mount:cached outeredge/che-sync <options> <worksp
 
 As well as CLI aguments, you can also pass some (or all) of the arguments as environment variables to docker (i.e. with `-e` or with a `docker-compose.yml`).
 
-| Variable | Default     |
-| -------- | ----------- |
-| CHE_HOST | -      |
-| CHE_USER | -      |
-| CHE_PASS | -      |
-| CHE_TOTP | -      |
-| CHE_NAMESPACE | - |
-| CHE_WORKSPACE | - |
-| CHE_PROJECT | -   |
-| SSH_USER | user        |
-| UNISON_PROFILE | default |
-| UNISON_REPEAT | watch  |
+| Variable | Default     | Description |
+| -------- | ----------- | ----------- |
+| CHE_HOST | -      | Your Che hostname (i.e. che.mycompany.com) |
+| CHE_USER | -      | Your Che password |
+| CHE_PASS | -      | Your Che username |
+| CHE_TOTP | -      | Two-factor TOTP (2fa) code *(optional)* |
+| CHE_NAMESPACE | - | Your Che organisation name |
+| CHE_WORKSPACE | - | Your Che workspace name |
+| CHE_PROJECT | -   | Your Che project name *(optional)* |
+| SSH_USER | user   | SSH username for remote workspace *(optional)* |
+| UNISON_NAME | che-local | Set this to an alternative value if you use che-sync on multiple machines |
+| UNISON_PROFILE | default | Specify which remote unison profile to use |
+| UNISON_REPEAT | watch | Sync repeat delay in seconds |
+| FORWARD_PORT | 9000 | Specify a remote port to forward to your local machine |
 
 ### Using Docker Compose
 
@@ -43,7 +46,6 @@ version: '3'
 services:
   sync:
     image: outeredge/che-sync
-    network_mode: host
     volumes:
       - .:/mount:cached
     environment:
@@ -84,4 +86,6 @@ $ docker exec $(docker ps -lq) tail -f unison.log
 
 If you are seeing errors about exceeding filesystem watchers, try;
 
-`echo fs.inotify.max_user_watches=1048576 | sudo tee -a /etc/sysctl.conf && sudo sysctl -p`
+```sh
+$ echo fs.inotify.max_user_watches=1048576 | sudo tee -a /etc/sysctl.conf && sudo sysctl -p
+```

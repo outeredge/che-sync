@@ -1,6 +1,6 @@
 #!/bin/bash
 
-current_version=2.1.1
+current_version=2.1.2
 latest_version=$(curl --silent "https://api.github.com/repos/outeredge/che-sync/releases/latest" | jq -r .tag_name)
 
 host_domain="host.docker.internal"
@@ -111,7 +111,7 @@ if [ "$ssh_only" != true ] ; then
     # Test connection to remote server and sync .chesync profiles
     unison_remote="${che_ssh:0:6}$SSH_USER@${che_ssh:6}//projects/$CHE_PROJECT"
     eval "unison /mount ${unison_remote} ${unison_args} -force ${unison_remote} -path .chesync"
-    cp -rf /mount/.chesync/*.prf $UNISON/
+    cp -rf /mount/.chesync/*.prf $UNISON/ 2>/dev/null || :
     if [ ! -z "$UNISON_PROFILE" ]; then
         echo "Using sync profile ${fgGreen}${fgBold}$UNISON_PROFILE${fgNormal}"
     fi

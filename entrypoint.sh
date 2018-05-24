@@ -1,6 +1,6 @@
 #!/bin/bash
 
-current_version=2.1.0
+current_version=2.1.1
 latest_version=$(curl --silent "https://api.github.com/repos/outeredge/che-sync/releases/latest" | jq -r .tag_name)
 
 host_domain="host.docker.internal"
@@ -106,17 +106,19 @@ if [ "$ssh_only" != true ] ; then
     echo "Starting file sync process..."
 
     # Shut down background jobs on exit
-    trap 'if [ "$(jobs -p)" ]; then echo "Shutting down sync process..." && kill $(jobs -p) 2> /dev/null; fi; exit' EXIT ERR
+    trap 'if [ "$(jobs -p)" ]; then echo "Shutting down sync process..." && kill $(jobs -p) 2> /dev/null; fi; exit' EXIT
 
-    # Test connection to remote server and sync .unison folder
+    # Test connection to remote server and sync .chesync profiles
     unison_remote="${che_ssh:0:6}$SSH_USER@${che_ssh:6}//projects/$CHE_PROJECT"
-    eval "unison /mount ${unison_remote} ${unison_args} -force ${unison_remote} -path .unison -ignore='Name ?*' -ignorenot='Name *.prf'"
-
-    # Run unison sync in the background
+    eval "unison /mount ${unison_remote} ${unison_args} -force ${unison_remote} -path .chesync"
+    cp -rf /mount/.chesync/*.prf $UNISON/
     if [ ! -z "$UNISON_PROFILE" ]; then
         echo "Using sync profile ${fgGreen}${fgBold}$UNISON_PROFILE${fgNormal}"
     fi
+
+    # Run unison sync in the background
     eval "unison ${UNISON_PROFILE} /mount ${unison_remote} ${unison_args} -repeat=${UNISON_REPEAT} \
+    -ignore='Path .unison' \
     -ignore='Path .che' \
     -ignore='Path .idea' \
     -ignore='Path .composer' \

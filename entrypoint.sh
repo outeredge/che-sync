@@ -1,6 +1,7 @@
 #!/bin/bash
 
-export CHE_SYNC_VERSION=2.1.0
+current_version=2.1.0
+latest_version=$(curl --silent "https://api.github.com/repos/outeredge/che-sync/releases/latest" | jq -r .tag_name)
 
 host_domain="host.docker.internal"
 ping -q -c1 $host_domain &>/dev/null
@@ -29,8 +30,13 @@ echo -e "  / __| '_ \ / _ \_____/ __| | | | '_ \ / __| ";
 echo -e " | (__| | | |  __/_____\__ \ |_| | | | | (__  ";
 echo -e "  \___|_| |_|\___|     |___/\__, |_| |_|\___| ";
 echo -e "                             __/ |            ";
-echo -e "                            |___/             ";
-echo -e " VERSION: ${CHE_SYNC_VERSION}    ${fgNormal}\n";
+echo -e "                            |___/  ${fgNormal}";
+echo -e "${fgGreen} VERSION: ${current_version}${fgNormal}\n";
+
+function version_gt() { test "$(printf '%s\n' "$@" | sort -V | head -n 1)" != "$1"; }
+if version_gt $latest_version $current_version; then
+     echo -e "${fgRed}You are running an old version of che-sync, please upgrade: ${fgBold}docker pull outeredge/che-sync${fgNormal}"
+fi
 
 OPTIND=1
 while getopts h:u:n:p:s:t:r: OPT

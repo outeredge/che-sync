@@ -17,7 +17,7 @@ ENV UNISON_VERSION=2.48.4 \
 
 ENTRYPOINT ["/entrypoint.sh"]
 
-RUN apk add --no-cache bash curl jq ncurses openssh unison=~${UNISON_VERSION} && \
+RUN apk add --no-cache bash coreutils curl jq ncurses openssh unison=~${UNISON_VERSION} && \
     addgroup -g 1000 -S user && \
     adduser -u 1000 -DS -h /home/user -s /sbin/nologin -g user -G user user && \
     mkdir /mount /home/user/.ssh && chown user:user /mount /home/user/.ssh

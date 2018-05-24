@@ -68,7 +68,7 @@ If you only want to access the workspace via SSH without file sync, you can type
 
 ### Additional unison profiles
 
-You can store one (`default.prf`) or multiple unison profile files in a `.unison` directory within your projects. Specify `-e UNISON_PROFILE=yourprofilename` to use a non-default profile.
+You can store one (`default.prf`) or multiple unison profile files in a `.chesync` directory within your projects. Specify `-e UNISON_PROFILE=yourprofilename` to use a non-default profile.
 
 ## Upgrading
 

@@ -1,6 +1,6 @@
 #!/bin/bash
 
-current_version=2.2.1
+current_version=2.2.2
 latest_version=$(curl --silent "https://api.github.com/repos/outeredge/che-sync/releases/latest" | jq -r .tag_name)
 
 host_domain="host.docker.internal"
@@ -144,7 +144,6 @@ shutdown_handler() {
 }
 
 # Shut down background jobs on exit
-trap "exit" INT TERM ERR
 trap shutdown_handler EXIT
 
 if [ "$ssh_only" != true ] ; then
@@ -176,6 +175,8 @@ if [ "$ssh_only" != true ] ; then
     -ignore='Name *.orig' \
     -ignore='Name .DS_Store' \
     -ignore='Name node_modules' \
+    -ignorenot='Path var/log ' \
+    -ignorenot='Path var/report ' \
     " > unison.log &
 fi
 

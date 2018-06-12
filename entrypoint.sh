@@ -1,6 +1,6 @@
 #!/bin/bash
 
-current_version=2.2.0
+current_version=2.2.1
 latest_version=$(curl --silent "https://api.github.com/repos/outeredge/che-sync/releases/latest" | jq -r .tag_name)
 
 host_domain="host.docker.internal"
@@ -80,7 +80,7 @@ auth_token_response=$(curl --fail -s -X POST "${CHE_HOST}:5050/auth/realms/che/p
     exit 1
 }
 auth_token=$(echo $auth_token_response | jq -re '.access_token | select(.!=null)') || {
-    echo "${fgRed}ERROR: Unable to authenticate with Che! $(echo $auth_token_response | jq -r '.error_description | select(.!=null)')${fgNormal}"
+    echo "${fgRed}ERROR: Unable to authenticate! $(echo $auth_token_response | jq -r '.error_description | select(.!=null)')${fgNormal}"
     exit 1
 }
 
@@ -88,14 +88,14 @@ auth_token=$(echo $auth_token_response | jq -re '.access_token | select(.!=null)
 che_info=$(curl -s "${CHE_HOST}/api/workspace/${CHE_WORKSPACE}?token=${auth_token}")
 
 che_workspace_id=$(echo $che_info | jq -re '.id | select(.!=null)' 2>/dev/null) || {
-    echo "${fgRed}ERROR: Unable to connect to the Che API for ${CHE_WORKSPACE}${fgNormal}"
+    echo "${fgRed}ERROR: Unable to connect to the API for ${CHE_WORKSPACE}${fgNormal}"
     exit 1
 }
 
 che_workspace_state=$(echo $che_info | jq -re '.status')
 
 if [ "$che_workspace_state" != "RUNNING" ]; then
-    echo "Starting Che workspace ${CHE_WORKSPACE}";
+    echo "Starting workspace ${CHE_WORKSPACE}";
 
     curl --fail -s --output /dev/null -X POST "${CHE_HOST}/api/workspace/$che_workspace_id/runtime?token=${auth_token}" || {
         echo "${fgRed}ERROR: Unable to start workspace!${fgNormal}"
@@ -107,6 +107,8 @@ if [ "$che_workspace_state" != "RUNNING" ]; then
         echo -n '.'
         sleep 1
     done
+
+    echo -e "\nWorkspace successfully started"
 
     che_info=$(curl -s "${CHE_HOST}/api/workspace/${CHE_WORKSPACE}?token=${auth_token}")
 fi
@@ -126,13 +128,29 @@ che_key=$(curl -s "${CHE_HOST}/api/ssh/machine?token=${auth_token}" | jq -re 'fi
 echo "${che_key}" > $HOME/.ssh/id_rsa
 chmod 600 $HOME/.ssh/id_rsa
 
+shutdown_handler() {
+    echo "Shutting down che-sync...";
+    read -p "${fgBold}Stop workspace ${CHE_WORKSPACE} [y/N]?${fgNormal} " answer
+    case $answer in
+        [yY])
+            curl --fail -s --output /dev/null -X DELETE "${CHE_HOST}/api/workspace/$che_workspace_id/runtime?token=${auth_token}" || {
+                echo "${fgRed}ERROR: Unable to stop workspace!${fgNormal}"
+                exit 1
+            }
+            echo "Workspace successfully stopped"
+            ;;
+    esac
+    kill 0
+}
+
+# Shut down background jobs on exit
+trap "exit" INT TERM ERR
+trap shutdown_handler EXIT
+
 if [ "$ssh_only" != true ] ; then
     export UNISONLOCALHOSTNAME=$UNISON_NAME
 
-    echo -e "\nStarting file sync process..."
-
-    # Shut down background jobs on exit
-    trap 'if [ "$(jobs -p)" ]; then echo "Shutting down sync process..." && kill $(jobs -p) 2> /dev/null; fi; exit' EXIT
+    echo -e "Starting file sync process"
 
     # Test connection to remote server and sync .chesync profiles
     unison_remote="${che_ssh:0:6}$SSH_USER@${che_ssh:6}//projects/$CHE_PROJECT"
@@ -162,7 +180,7 @@ if [ "$ssh_only" != true ] ; then
 fi
 
 # Drop user into workspace via ssh
-echo "Connecting to Che workspace ${fgBold}${fgGreen}$CHE_WORKSPACE${fgNormal} with SSH..."
+echo "Connecting to workspace ${fgBold}${fgGreen}$CHE_WORKSPACE${fgNormal} with SSH..."
 ssh_connect=${che_ssh:6}
 ssh_connect=${ssh_connect/:/ -p}
 ssh -R "*:$FORWARD_PORT:$host_domain:$FORWARD_PORT" $ssh_ports $ssh_args $SSH_USER@$ssh_connect -t "cd /projects/${CHE_PROJECT}; exec \$SHELL --login"

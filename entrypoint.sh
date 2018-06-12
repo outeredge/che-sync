@@ -1,6 +1,6 @@
 #!/bin/bash
 
-current_version=2.1.2
+current_version=2.2.0
 latest_version=$(curl --silent "https://api.github.com/repos/outeredge/che-sync/releases/latest" | jq -r .tag_name)
 
 host_domain="host.docker.internal"
@@ -63,12 +63,12 @@ fi
 CHE_WORKSPACE=${CHE_NAMESPACE:+$CHE_NAMESPACE/}${CHE_WORKSPACE}
 CHE_PROJECT=${2:-$CHE_PROJECT}
 
-if [[ -z $CHE_HOST || -z $CHE_USER || -z $CHE_PASS || -z $CHE_WORKSPACE ]]; then
+if [[ -z "$CHE_HOST" || -z "$CHE_USER" || -z "$CHE_PASS" || -z "$CHE_WORKSPACE" ]]; then
   echo "${fgRed}ERROR: You must specify at least a host, username, password and workspace to continue${fgNormal}"
   exit 1
 fi
 
-# Authenticate with keycloak and grab tokeb
+# Authenticate with keycloak and grab token
 auth_token_response=$(curl --fail -s -X POST "${CHE_HOST}:5050/auth/realms/che/protocol/openid-connect/token" \
  -H "Content-Type: application/x-www-form-urlencoded" \
  -d "username=${CHE_USER}" \
@@ -76,24 +76,50 @@ auth_token_response=$(curl --fail -s -X POST "${CHE_HOST}:5050/auth/realms/che/p
  -d "totp=${CHE_TOTP}" \
  -d 'grant_type=password' \
  -d 'client_id=che-public') || {
-    echo "${fgRed}ERROR: Unable to authenticate with server!${fgNormal}";
-    exit 1;
+    echo "${fgRed}ERROR: Unable to authenticate with server!${fgNormal}"
+    exit 1
 }
 auth_token=$(echo $auth_token_response | jq -re '.access_token | select(.!=null)') || {
-    echo "${fgRed}ERROR: Unable to authenticate with Che! $(echo $auth_token_response | jq -r '.error_description | select(.!=null)')${fgNormal}";
-    exit 1;
+    echo "${fgRed}ERROR: Unable to authenticate with Che! $(echo $auth_token_response | jq -r '.error_description | select(.!=null)')${fgNormal}"
+    exit 1
 }
 
-# Get ssh url from che api
-che_ssh=$(curl -s "${CHE_HOST}/api/workspace/${CHE_WORKSPACE}?token=${auth_token}" | jq -re 'first(..|.["dev-machine"]?.servers?.ssh?.url? | select(.!=null))' 2>/dev/null) || {
-    echo "${fgRed}ERROR: Unable to connect to the Che API for ${CHE_WORKSPACE}, is the workspace running and the SSH agent enabled?${fgNormal}";
-    exit 1;
+# Get info from che api
+che_info=$(curl -s "${CHE_HOST}/api/workspace/${CHE_WORKSPACE}?token=${auth_token}")
+
+che_workspace_id=$(echo $che_info | jq -re '.id | select(.!=null)' 2>/dev/null) || {
+    echo "${fgRed}ERROR: Unable to connect to the Che API for ${CHE_WORKSPACE}${fgNormal}"
+    exit 1
+}
+
+che_workspace_state=$(echo $che_info | jq -re '.status')
+
+if [ "$che_workspace_state" != "RUNNING" ]; then
+    echo "Starting Che workspace ${CHE_WORKSPACE}";
+
+    curl --fail -s --output /dev/null -X POST "${CHE_HOST}/api/workspace/$che_workspace_id/runtime?token=${auth_token}" || {
+        echo "${fgRed}ERROR: Unable to start workspace!${fgNormal}"
+        exit 1
+    }
+
+    trap "echo Exited!; exit;" SIGINT SIGTERM
+    until [ "$(curl -s ${CHE_HOST}/api/workspace/${CHE_WORKSPACE}?token=${auth_token} | jq -re '.status')" == "RUNNING" ]; do
+        echo -n '.'
+        sleep 1
+    done
+
+    che_info=$(curl -s "${CHE_HOST}/api/workspace/${CHE_WORKSPACE}?token=${auth_token}")
+fi
+
+che_ssh=$(echo $che_info | jq -re 'first(..|.["dev-machine"]?.servers?.ssh?.url? | select(.!=null))' 2>/dev/null) || {
+    echo "${fgRed}ERROR: Unable to get SSH details from ${CHE_WORKSPACE}, is the SSH agent enabled?${fgNormal}"
+    exit 1
 }
 
 # Get ssh key from che api
 che_key=$(curl -s "${CHE_HOST}/api/ssh/machine?token=${auth_token}" | jq -re 'first(..|.privateKey? | select(.!=null))' 2>/dev/null) || {
-    echo "${fgRed}ERROR: Unable to obtain SSH key for ${CHE_WORKSPACE}, do you have a machine key generated?${fgNormal}";
-    exit 1;
+    echo "${fgRed}ERROR: Unable to obtain SSH key for ${CHE_WORKSPACE}, do you have a machine key generated?${fgNormal}"
+    exit 1
 }
 
 # Store private key
@@ -103,7 +129,7 @@ chmod 600 $HOME/.ssh/id_rsa
 if [ "$ssh_only" != true ] ; then
     export UNISONLOCALHOSTNAME=$UNISON_NAME
 
-    echo "Starting file sync process..."
+    echo -e "\nStarting file sync process..."
 
     # Shut down background jobs on exit
     trap 'if [ "$(jobs -p)" ]; then echo "Shutting down sync process..." && kill $(jobs -p) 2> /dev/null; fi; exit' EXIT

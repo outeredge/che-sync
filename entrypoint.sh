@@ -173,6 +173,7 @@ if [ "$ssh_only" != true ] ; then
     -ignore='Path pub/media' \
     -ignore='Name .git' \
     -ignore='Name *.orig' \
+    -ignore='Name *.sql' \
     -ignore='Name .DS_Store' \
     -ignore='Name node_modules' \
     -ignorenot='Path var/log ' \

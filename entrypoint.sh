@@ -170,6 +170,7 @@ if [ "$ssh_only" != true ] ; then
     -ignore='Path docker-compose.yml' \
     -ignore='Path var' \
     -ignore='Path media' \
+    -ignore='Path generated' \
     -ignore='Path pub/media' \
     -ignore='Name .git' \
     -ignore='Name *.orig' \

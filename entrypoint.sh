@@ -1,6 +1,6 @@
 #!/bin/bash
 
-current_version=2.2.2
+current_version=2.2.3
 latest_version=$(curl --silent "https://api.github.com/repos/outeredge/che-sync/releases/latest" | jq -r .tag_name)
 
 host_domain="host.docker.internal"

@@ -1,6 +1,6 @@
 #!/bin/bash
 
-current_version=2.2.3
+current_version=2.2.4
 latest_version=$(curl --silent "https://api.github.com/repos/outeredge/che-sync/releases/latest" | jq -r .tag_name)
 
 host_domain="host.docker.internal"
@@ -172,6 +172,7 @@ if [ "$ssh_only" != true ] ; then
     -ignore='Path media' \
     -ignore='Path generated' \
     -ignore='Path pub/media' \
+    -ignore='Path pub/static' \
     -ignore='Name .git' \
     -ignore='Name *.orig' \
     -ignore='Name *.sql' \

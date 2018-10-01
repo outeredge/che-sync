@@ -10,7 +10,7 @@ if [ $? -ne 0 ]; then
 fi
 
 ssh_args="-o LogLevel=ERROR -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no"
-unison_args="-batch -auto -silent -terse -prefer=newer -retry 10 -sshargs '-C ${ssh_args}'"
+unison_args="-batch -auto -silent -terse -confirmbigdel=false -prefer=newer -retry 10 -sshargs '-C ${ssh_args}'"
 
 if [ -t 0 ]; then
     TERM=xterm-256color

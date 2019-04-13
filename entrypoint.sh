@@ -173,6 +173,7 @@ if [ "$ssh_only" != true ] ; then
     -ignore='Path bin' \
     -ignore='Path update' \
     -ignore='Path setup' \
+    -ignore='Path dev' \
     -ignore='Path phpserver' \
     -ignore='Path generated' \
     -ignore='Path pub/media' \

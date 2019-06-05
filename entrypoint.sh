@@ -1,6 +1,6 @@
 #!/bin/bash
 
-current_version=2.2.6
+current_version=2.2.7
 latest_version=$(curl --silent "https://api.github.com/repos/outeredge/che-sync/releases/latest" | jq -r .tag_name)
 
 host_domain="host.docker.internal"
@@ -10,7 +10,7 @@ if [ $? -ne 0 ]; then
 fi
 
 ssh_args="-o LogLevel=ERROR -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no"
-unison_args="-batch -auto -silent -terse -confirmbigdel=false -fat -prefer=newer -retry 10 -sshargs '-C ${ssh_args}'"
+unison_args="-batch -auto -silent -terse -confirmbigdel=false -perms 0 -dontchmod -links false -prefer=newer -retry 10 -sshargs '-C ${ssh_args}'"
 
 if [ -t 0 ]; then
     TERM=xterm-256color

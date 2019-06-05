@@ -78,14 +78,18 @@ $ docker pull outeredge/che-sync
 
 ## Troubleshooting
 
-You can watch the Unison sync logs by running the below command in a new terminal after starting che-sync.
+You can watch the Unison sync logs by running the below command in a new terminal after starting che-sync:
 
 ```sh
 $ docker exec $(docker ps -lq) tail -f unison.log
 ```
 
-If you are seeing errors about exceeding filesystem watchers, try;
+If you are seeing errors about exceeding filesystem watchers, try:
 
 ```sh
 $ echo fs.inotify.max_user_watches=1048576 | sudo tee -a /etc/sysctl.conf && sudo sysctl -p
 ```
+
+If you see the error `Warning: inconsistent state.`, run the following commands in the che terminal:
+
+`rm -rf /projects/.unison`

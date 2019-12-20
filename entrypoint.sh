@@ -1,7 +1,7 @@
 #!/bin/bash
 
 current_version=3.0.0
-#latest_version=$(curl --silent "https://api.github.com/repos/outeredge/che-sync/releases/latest" | jq -r .tag_name)
+latest_version=$(curl --silent "https://api.github.com/repos/outeredge/che-sync/releases/latest" | jq -r .tag_name)
 
 if [ -t 0 ]; then
     TERM=xterm-256color

@@ -2,6 +2,8 @@
 
 A tool by [outer/edge](https://github.com/outeredge) to work on remote Eclipse Che workspaces in your local IDE. Support for remote port forwarding (to enable, for example, XDebug) on Linux, MacOS & Windows built-in.
 
+**As of v3.0.0, che-sync only supports Che 7+ with workspaces running an imaged based on `outeredge/edge-docker-php` with SSH access enabled.**
+
 ## Running
 
 To run che-sync, you will need docker [installed](https://docs.docker.com/install/) on your local machine.
@@ -31,9 +33,9 @@ As well as CLI aguments, you can also pass some (or all) of the arguments as env
 | CHE_NAMESPACE | - | Your Che organisation name |
 | CHE_WORKSPACE | - | Your Che workspace name |
 | CHE_PROJECT | -   | Your Che project name *(optional)* |
-| SSH_USER | user   | SSH username for remote workspace *(optional)* |
+| SSH_USER | edge   | SSH username for remote workspace *(optional)* |
+| SSH_PORT | -      | SSH port to connect to |
 | UNISON_NAME | che-local | Set this to an alternative value if you use che-sync on multiple machines |
-| UNISON_PROFILE | default | Specify which remote unison profile to use |
 | UNISON_REPEAT | watch | Sync repeat delay in seconds |
 | FORWARD_PORT | 9000 | Specify a remote port to forward to your local machine |
 
@@ -50,11 +52,13 @@ services:
       - .:/mount:cached
     environment:
       - CHE_HOST=che.mycompany.com
+      - CHE_AUTH_HOST=keycloak.mycompany.com
       - CHE_NAMESPACE=mycompany
       - CHE_WORKSPACE=test
       - CHE_PROJECT=test
       - CHE_USER=user
       - CHE_PASS=password
+      - SSH_PORT=9000
 ```
 
 You can then launch the sync and enter the workspace simply with:
@@ -65,10 +69,6 @@ If you only want to access the workspace via SSH without file sync, you can type
 
 `$ docker-compose run --rm sync ssh`
 
-
-### Additional unison profiles
-
-You can store one (`default.prf`) or multiple unison profile files in a `.chesync` directory within your projects. Specify `-e UNISON_PROFILE=yourprofilename` to use a non-default profile.
 
 ## Upgrading
 

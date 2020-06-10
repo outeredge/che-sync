@@ -146,8 +146,6 @@ ssh_args="-o LogLevel=ERROR -o UserKnownHostsFile=/dev/null -o StrictHostKeyChec
 unison_args="-ui text -batch -auto -silent -terse -confirmbigdel=false -perms 0 -dontchmod -links false -prefer=newer -retry 10 -sshcmd '/sshpass.sh' -sshargs '${ssh_args}'"
 
 if [ "$ssh_only" != true ] ; then
-    export UNISONLOCALHOSTNAME=$UNISON_NAME
-
     echo -e "Starting file sync process..."
 
     # Run unison sync in the background

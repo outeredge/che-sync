@@ -12,6 +12,7 @@ ENV CHE_HOST= \
     SSH_USER=edge \
     UNISON=/mount/.unison \
     UNISON_NAME=che-local \
+    UNISONLOCALHOSTNAME=$UNISON_NAME \
     UNISON_REPEAT=watch
 
 ENTRYPOINT ["/entrypoint.sh"]
